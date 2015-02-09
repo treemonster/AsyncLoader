@@ -3,6 +3,7 @@ var define;
 (function(loader,win){
 	var loads=[],loaded={},module={},wait={},wi=0,callbackwait={};
 	win.module=module;
+	win.wait=wait;
 	function is(a,b){return a!==undefined && a.constructor===b;}
 	function format(request,refer){
 		request=refer+request;
@@ -16,7 +17,7 @@ var define;
 	function loadScript(src){
 		var script=document.createElement('script');
 		var head=document.getElementsByTagName('head')[0];
-		script.onerror=function(){return;try{head.removeChild(this);}catch(e){}};
+		script.onerror=function(){try{head.removeChild(this);}catch(e){}};
 		var load=function(){
 			if(this.loaded==true)return;
 			this.loaded=true;
@@ -75,7 +76,7 @@ var define;
 			if(loaded[id])return;
 			loaded[id]=true;
 			node.moduleName=id;
-		}else if(tested[1]===null){
+		}if(tested[1]===null){
 			wait[wi++]=[id,dependencies,factory,node];
 			return;
 		}
@@ -86,11 +87,12 @@ var define;
 			if(callback){
 				if(t[1]!==null)callback.apply(node,t[1]);
 				else callbackwait[wi++]=[callback,t[0],node];
-			}
+			}else return t[1];
 		};
 		getRequire.toUrl=function(str){
 			return format(str,node.path);
 		};
+
 		if(is(factory,Object))module[id]=factory;
 		else factory(getRequire,m.exports,m);
 
@@ -104,7 +106,7 @@ var define;
 		}
 
 		for(var i in wait){
-			if(test(wait[i][1])[1]===null)return;
+			if(test(wait[i][1])[1]===null)continue;
 			w=wait[i].slice(0);
 			delete wait[i];
 			define.apply(w[3],w);
