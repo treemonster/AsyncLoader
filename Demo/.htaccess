@@ -1,0 +1,3 @@
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^s/(\d+)/f/(.+) wait.php?f=$2&s=$1

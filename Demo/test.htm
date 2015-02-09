@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src='AsyncLoader.js'></script>
+</head>
+<body>
+<div id='log'><br/></div>
+<script>
+console=window.console||{};
+console.log=function(x){log.innerHTML+=x+'<br/>';};
+AsyncLoader.use('main.js');
+</script>
+</body>

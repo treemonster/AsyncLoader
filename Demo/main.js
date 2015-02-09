@@ -1,0 +1,10 @@
+define(function(require){
+	require(['s/3/f/modules/normalDefine',
+		's/1/f/modules/simpleDefine',
+		'modules/other/toUrl'],
+	function(normalDefine,simpleDefine,toUrl){
+		normalDefine.test('ok');
+		simpleDefine.test('ok');
+		toUrl.toUrl('test.html');
+	});
+});
