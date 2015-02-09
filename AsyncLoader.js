@@ -36,7 +36,7 @@ var define;
 		for(var i=0;i<requires.length;i++){
 			if(refer!==undefined)requires[i]=format(requires[i],refer);
 			if(module[requires[i]]){
-				if(ready!==null)ready.push(requires[i]);
+				if(ready!==null)ready.push(module[requires[i]]);
 			}else{
 				loadScript(requires[i]);
 				ready=null;
