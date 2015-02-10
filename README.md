@@ -1,3 +1,3 @@
 # AsyncLoader.js
-An simple AMD library for browser environment.
-See <a href='https://github.com/treemonster/AsyncLoader.js/blob/master/Demo'>Demo</a> to learn more.
+An simple <a target='_blank' href='https://github.com/amdjs/amdjs-api/'>AMD</a> library for browser environment.
+See <a target='_blank' href='https://github.com/treemonster/AsyncLoader.js/blob/master/Demo'>Demo</a> to learn more.
