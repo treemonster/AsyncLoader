@@ -103,7 +103,7 @@ var define;
 		//require('xx')
 		//It MUST throw an error if the module has not already been loaded and evaluated. In particular, the synchronous call to require MUST NOT try to dynamically fetch the module if it is not already loaded, but throw an error instead.
 		//require(['xx','yy'],function(xx,yy){...})
-		//The Array is an array of String module IDs. The modules that are represented by the module IDs should be retrieved and once all the modules for those module IDs are available, the Function callback is called, passing the modules in the same order as the their IDs in the Array argument.
+		//The Array is an array of String module IDs. The modules are represented by the module IDs should be retrieved and once all the modules for those module IDs are available, the Function callback is called, passing the modules in the same order as the their IDs in the Array argument.
 		var getRequire=function(moduleName,callback){
 			var one=is(moduleName,String);
 			if(one)moduleName=[moduleName];
