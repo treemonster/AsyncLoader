@@ -88,7 +88,7 @@ var define=function(){
       if(callback){
         if(t[1]!==null)callback.apply(node,t[1]);
         else callbackwait[wi++]=[callback,t[0],node];
-      }else return one?t[1][0]:t[1];
+      }else return one?(t[1]?t[1][0]:null):t[1];
     };
     require.toUrl=function(str){
       return format(str,node.path);
