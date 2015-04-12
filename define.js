@@ -11,7 +11,7 @@ var define=function(){
     var re=[];
     for(var i=0,req=(refer+request).split('/');i<req.length;i++)
       if(req[i]==='.')continue;
-      else if(req[i]==='..')re.pop();
+      else if(req[i]==='..' && re.length && re[re.length-1]!=='..')re.pop();
       else re.push(req[i]);
     return re.join('/');
   }
