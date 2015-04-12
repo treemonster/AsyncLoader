@@ -5,9 +5,6 @@
 </head>
 <body>
 <div id='log'><br/></div>
-<script>
-console=window.console||{};
-console.log=function(x){log.innerHTML+=x+'<br/>';};
-define.use('main.js'); // or include by script tag, <script src='main.js'><\/script>
-</script>
+<script>(console=window.console||{}).log=function(x){log.innerHTML+=x+'<br/>';};</script>
+<script src='main.js'></script>
 </body>

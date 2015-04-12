@@ -8,9 +8,8 @@ var define=function(){
   var loads=[],loaded={},module={},wait={},wi=0,callbackwait={};
   function is(a,b){return a!==undefined && a.constructor===b;}
   function format(request,refer){
-    request=refer+request;
     var re=[];
-    for(var i=0,req=request.split('/');i<req.length;i++)
+    for(var i=0,req=(refer+request).split('/');i<req.length;i++)
       if(req[i]==='.')continue;
       else if(req[i]==='..')re.pop();
       else re.push(req[i]);
@@ -47,7 +46,7 @@ var define=function(){
     }
     return [requires,ready];
   }
-  define=function(){
+  var define=function(){
     var a=arguments;
     if(this.ready!=true)return setTimeout(function(){
       define.apply({ready:true,node:loads.shift()},a);
