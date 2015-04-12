@@ -1,7 +1,7 @@
 ﻿/*********************************************************
 Author: treemonster
 Latest: 2015-2-10
-Git: https://github.com/treemonster/AsyncLoader.js
+Git: https://github.com/treemonster/AsyncLoader
 *********************************************************/
 
 var define=function(){
