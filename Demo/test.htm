@@ -4,7 +4,24 @@
 <script src='../define.js'></script>
 </head>
 <body>
-<div id='log'><br/></div>
-<script>(console=window.console||{}).log=function(x){log.innerHTML+=x+'<br/>';};</script>
-<script src='main.js'></script>
+<div id='log'><h1>Result: </h1></div>
+<script>
+(console=window.console||{}).log=function(x){
+  log.innerHTML+=x+'<br/>';
+};
+</script>
+<script src='main.js'>
+/*
+Once main.js running completed, following result will displayed on this page
+
+testWait is ready
+modules/testWait is ready
+require.toUrl: requires/modules/other/test.html
+normalDefine: ok
+simpleDefine: ok
+require.toUrl: requires/modules/other/test.html
+simpleDefine: immediately ok
+
+*/
+</script>
 </body>
