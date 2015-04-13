@@ -1,6 +1,6 @@
 /*!
  * define.js
- * Version: 1.0.3
+ * Version: 1.0.4
  *
  * Copyright 2015 treemonster
  * Released under the Apache license
@@ -77,34 +77,37 @@ var define=function(){
       wait[wi++]=[id,dependencies,factory,node];
       return;
     }
-    var w,m={exports:(module[id]={})};
+    var _wait,_module=module[id]={exports:{}};
+    var toExports=function(modules){
+      for(var i=0;i<modules.length;i++)modules[i]=modules[i].exports;
+      return modules;
+    };
     var require=function(moduleName,callback){
       var one=is(moduleName,String);
       if(one)moduleName=[moduleName];
       var t=test(moduleName,node.path);
-      if(callback){
-        if(t[1]!==null)callback.apply(node,t[1]);
-        else callbackwait[wi++]=[callback,t[0],node];
-      }else return one?(t[1]?t[1][0]:null):t[1];
+      if(t[1]!==null)toExports(t[1]);
+      if(!callback)return one?(t[1]?t[1][0]:null):t[1];
+      else t[1]?callback.apply(node,t[1]):(callbackwait[wi++]=[callback,t[0],node]);
     };
     require.toUrl=function(str){
       return format(str,node.path);
     };
     if(is(factory,Object))module[id]=factory;
-    else factory(require,m.exports,m);
+    else factory(require,_module.exports,module[id]);
     for(var i in callbackwait){
       var t=test(callbackwait[i][1]);
       if(t[1]!==null){
         var cb=callbackwait[i].slice(0);
         delete callbackwait[i];
-        cb[0] && cb[0].apply(cb[2],t[1]);
+        cb[0] && cb[0].apply(cb[2],toExports(t[1]));
       }
     }
     for(var i in wait){
       if(test(wait[i][1])[1]===null)continue;
-      w=wait[i].slice(0);
+      _wait=wait[i].slice(0);
       delete wait[i];
-      define.apply(w[3],w);
+      define.apply(_wait[3],_wait);
     }
   };
   define.amd={};
