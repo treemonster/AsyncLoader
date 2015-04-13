@@ -1,6 +1,6 @@
 /*!
  * define.js
- * Version: 1.0.2
+ * Version: 1.0.3
  *
  * Copyright 2015 treemonster
  * Released under the Apache license
@@ -8,7 +8,9 @@
  */
 var define=function(){
   var loads=[],loaded={},module={},wait={},wi=0,callbackwait={};
-  function is(a,b){return a!==undefined && a.constructor===b;}
+  function is(a,b){
+    return a!==undefined && a.constructor===b;
+  }
   function format(request,refer){
     var re=[];
     for(var i=0,req=(refer+request).split('/');i<req.length;i++)
@@ -58,18 +60,11 @@ var define=function(){
       this.path=this.moduleName.replace(/[^\/]+$/,'');
       delete this.node;
     }
-    var id,dependencies,factory,l=a.length,node=this,tested=node.tested||a[3];
-    switch(l-(l>3)){
-      case 3:
-        id=a[0],dependencies=a[1],factory=a[2];
-        break;
-      case 2:
-        if(is(a[0],String))id=a[0],dependencies=[],factory=a[1];
-        else id=undefined,dependencies=a[0],factory=a[1];
-        break;
-      case 1:
-        id=undefined,dependencies=[],factory=a[0];
-        break;
+    var id,dependencies=[],factory,node=this,tested=node.tested||a[3];
+    for(var i=0,len=a.length;i<len-(len>3);i++){
+      if(is(a[i],String))id=a[i];
+      else if(is(a[i],Array))dependencies=a[i];
+      else factory=a[i];
     }
     if(tested===undefined){
       if(id)id=format(node.path+id,'./');
