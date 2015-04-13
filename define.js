@@ -1,9 +1,11 @@
-﻿/*********************************************************
-Author: treemonster
-Latest: 2015-2-10
-Git: https://github.com/treemonster/AsyncLoader
-*********************************************************/
-
+/*!
+ * define.js
+ * Version: 1.0.2
+ *
+ * Copyright 2015 treemonster
+ * Released under the Apache license
+ * https://github.com/treemonster/AsyncLoader/blob/master/LICENSE
+ */
 var define=function(){
   var loads=[],loaded={},module={},wait={},wi=0,callbackwait={};
   function is(a,b){return a!==undefined && a.constructor===b;}
