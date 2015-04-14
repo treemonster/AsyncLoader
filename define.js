@@ -1,6 +1,6 @@
 /*!
  * define.js
- * Version: 1.0.4
+ * Version: 1.0.5
  *
  * Copyright 2015 treemonster
  * Released under the Apache license
@@ -64,7 +64,8 @@ var define=function(){
     for(var i=0,len=a.length;i<len-(len>3);i++){
       if(is(a[i],String))id=a[i];
       else if(is(a[i],Array))dependencies=a[i];
-      else factory=a[i];
+      else if(is(a[i],Function))factory=a[i];
+      else factory={exports:a[i]};
     }
     if(tested===undefined){
       if(id)id=format(node.path+id,'./');
