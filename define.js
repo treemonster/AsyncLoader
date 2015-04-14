@@ -1,13 +1,16 @@
 /*!
  * define.js
- * Version: 1.0.5
+ * Version: 1.0.6
  *
  * Copyright 2015 treemonster
  * Released under the Apache license
  * https://github.com/treemonster/AsyncLoader/blob/master/LICENSE
  */
 var define=function(){
-  var loads=[],loaded={},module={},wait={},wi=0,callbackwait={};
+  var loads=[],loaded={},module={},wait={},uniqueId=0,callbackwait={},all={};
+  function isTrue(a,b){
+    if(a[b]===true)return true;else a[b]=true;
+  }
   function is(a,b){
     return a!==undefined && a.constructor===b;
   }
@@ -20,6 +23,7 @@ var define=function(){
     return re.join('/');
   }
   function loadScript(src){
+    if(isTrue(all,src))return;
     var script=document.createElement('script');
     var head=document.getElementsByTagName('head')[0];
     script.onerror=function(){try{head.removeChild(this);}catch(e){}};
@@ -75,7 +79,7 @@ var define=function(){
       loaded[id]=true;
       node.moduleName=id;
     }if(tested[1]===null){
-      wait[wi++]=[id,dependencies,factory,node];
+      wait[uniqueId++]=[id,dependencies,factory,node];
       return;
     }
     var _wait,_module=module[id]={exports:{}};
@@ -89,7 +93,7 @@ var define=function(){
       var t=test(moduleName,node.path);
       if(t[1]!==null)toExports(t[1]);
       if(!callback)return one?(t[1]?t[1][0]:null):t[1];
-      else t[1]?callback.apply(node,t[1]):(callbackwait[wi++]=[callback,t[0],node]);
+      else t[1]?callback.apply(node,t[1]):(callbackwait[uniqueId++]=[callback,t[0],node]);
     };
     require.toUrl=function(str){
       return format(str,node.path);
