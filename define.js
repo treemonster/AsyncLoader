@@ -1,18 +1,21 @@
+
 /*!
  * define.js
- * Version: 1.0.6
+ * Version: 1.0.7
  *
  * Copyright 2015 treemonster
  * Released under the Apache license
  * https://github.com/treemonster/AsyncLoader/blob/master/LICENSE
  */
 var define=function(){
-  var loads=[],loaded={},module={},wait={},uniqueId=0,callbackwait={},all={};
+  var scriptLoaded={},wait={},uniqueId=0,callbackwait={},module={},defineQueue=undefined;
   function isTrue(a,b){
+    // TODO
     if(a[b]===true)return true;else a[b]=true;
   }
   function is(a,b){
-    return a!==undefined && a.constructor===b;
+    // TODO
+    return a===b || a && a.constructor===b;
   }
   function format(request,refer){
     var re=[];
@@ -23,47 +26,60 @@ var define=function(){
     return re.join('/');
   }
   function loadScript(src){
-    if(isTrue(all,src))return;
+    if(isTrue(scriptLoaded,src))return;
     var script=document.createElement('script');
     var head=document.getElementsByTagName('head')[0];
-    script.onerror=function(){try{head.removeChild(this);}catch(e){}};
+    var moduleName=src.replace(/\.js(\?.*)*$/i,'');
+    var loaded=false;
+    var kill=function(){try{head.removeChild(this);}catch(e){}};
     var load=function(){
-      if(this.loaded===true)return;
-      this.loaded=true;
-      loads.push(this);
-      this.onerror();
+      if(isTrue(this,'loaded'))return;
+      for(var i=0;i<defineQueue.length;i++)
+        _define.apply({
+          moduleName: moduleName, // a/b/c.js -> a/b/c
+          path: moduleName.replace(/[^\/]+$/,'') // a/b/c.js -> a/b/
+        },defineQueue[i]);
+      defineQueue=undefined;
+      kill.call(this);
     };
+    script.onerror=kill;
     if(script.onreadystatechange===null)
-      script.onreadystatechange=function(){if(/loaded|complete/.test(this.readyState))load.call(this);};
-    else script.onload=load;
+      script.onreadystatechange=function(){
+        /loaded|complete/.test(this.readyState) && load.call(this);
+      };
+    else if(script.onload===null)script.onload=load;
+    else throw 'Unknown Error';
     script.type='text/javascript';
-    script.async="async";script.defer="defer";
-    script.src=(script.moduleName=src.replace(/\.js(\?.*)*$/i,''))+'.js';
+    script.async="async";
+    script.defer="defer";
+    script.src=moduleName+'.js';
     if(head)head.insertBefore(script,head.firstChild);
   }
   function test(requires,refer){
     var ready=[];
     for(var i=0;i<requires.length;i++){
       if(refer!==undefined)requires[i]=format(requires[i],refer);
-      if(module[requires[i]]){
-        if(ready!==null)ready.push(module[requires[i]]);
-      }else{
+      if(module[requires[i]])ready!==null && ready.push(module[requires[i]]);
+      else{
         loadScript(requires[i]);
         ready=null;
       }
     }
     return [requires,ready];
   }
-  var define=function(){
-    var a=arguments;
-    if(this.ready!=true)return setTimeout(function(){
-      define.apply({ready:true,node:loads.shift()},a);
-    },0);
-    if(this.moduleName===undefined){
-      this.moduleName=this.node?this.node.moduleName:'';
-      this.path=this.moduleName.replace(/[^\/]+$/,'');
-      delete this.node;
+  function cleanWait(waits){
+    var isWait=waits===wait,result,cb,id;
+    for(id in waits){
+      result=test(waits[id][1]);
+      if(result[1]===null)continue;
+      cb=waits[id].slice(0);
+      delete waits[id];
+      if(isWait)_define.apply(cb[3],cb);
+      else cb[0] && cb[0].apply(cb[2],toExports(result[1]));
     }
+  }
+  var _define=function(){
+    var a=arguments;
     var id,dependencies=[],factory,node=this,tested=node.tested||a[3];
     for(var i=0,len=a.length;i<len-(len>3);i++){
       if(is(a[i],String))id=a[i];
@@ -75,14 +91,12 @@ var define=function(){
       if(id)id=format(node.path+id,'./');
       else id=format(node.moduleName,'./');
       tested=test(dependencies,node.path);
-      if(loaded[id])return;
-      loaded[id]=true;
       node.moduleName=id;
     }if(tested[1]===null){
       wait[uniqueId++]=[id,dependencies,factory,node];
       return;
     }
-    var _wait,_module=module[id]={exports:{}};
+    var _module=module[id]={exports:{}};
     var toExports=function(modules){
       for(var i=0;i<modules.length;i++)modules[i]=modules[i].exports;
       return modules;
@@ -100,22 +114,15 @@ var define=function(){
     };
     if(is(factory,Object))module[id]=factory;
     else factory(require,_module.exports,module[id]);
-    for(var i in callbackwait){
-      var t=test(callbackwait[i][1]);
-      if(t[1]!==null){
-        var cb=callbackwait[i].slice(0);
-        delete callbackwait[i];
-        cb[0] && cb[0].apply(cb[2],toExports(t[1]));
-      }
-    }
-    for(var i in wait){
-      if(test(wait[i][1])[1]===null)continue;
-      _wait=wait[i].slice(0);
-      delete wait[i];
-      define.apply(_wait[3],_wait);
-    }
+    cleanWait(callbackwait);
+    cleanWait(wait);
   };
-  define.amd={};
+  var define=function(){
+    var a=arguments;
+    if(defineQueue===undefined)defineQueue=[];
+    defineQueue.push(a);
+  };
+  define.amd=true;
   define.use=function(src){loadScript(src)};
   return define;
 }();
