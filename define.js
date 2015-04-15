@@ -1,7 +1,7 @@
 
 /*!
  * define.js
- * Version: 1.0.7
+ * Version: 1.0.8
  *
  * Copyright 2015 treemonster
  * Released under the Apache license
@@ -10,11 +10,9 @@
 var define=function(){
   var scriptLoaded={},wait={},uniqueId=0,callbackwait={},module={},defineQueue=undefined;
   function isTrue(a,b){
-    // TODO
     if(a[b]===true)return true;else a[b]=true;
   }
   function is(a,b){
-    // TODO
     return a===b || a && a.constructor===b;
   }
   function format(request,refer){
@@ -34,7 +32,7 @@ var define=function(){
     var kill=function(){try{head.removeChild(this);}catch(e){}};
     var load=function(){
       if(isTrue(this,'loaded'))return;
-      for(var i=0;i<defineQueue.length;i++)
+      if(defineQueue)for(var i=0;i<defineQueue.length;i++)
         _define.apply({
           moduleName: moduleName, // a/b/c.js -> a/b/c
           path: moduleName.replace(/[^\/]+$/,'') // a/b/c.js -> a/b/
