@@ -1,14 +1,17 @@
-
 /*!
- * define.js
- * Version: 1.0.8
+ * amd.js
+ * Version: 1.1.1
  *
  * Copyright 2015 treemonster
  * Released under the Apache license
  * https://github.com/treemonster/AsyncLoader/blob/master/LICENSE
  */
-var define=function(){
-  var scriptLoaded={},wait={},uniqueId=0,callbackwait={},module={},defineQueue=undefined;
+var define,require;
+// GLOBAL define should just use in module file
+// GLOBAL require should just use in html page
+
+!function(){
+  var scriptLoaded={},wait={},uniqueId=0,callbackwait={},module={},defineQueue=undefined,requireQueue=undefined;
   function isTrue(a,b){
     if(a[b]===true)return true;else a[b]=true;
   }
@@ -29,6 +32,7 @@ var define=function(){
     var head=document.getElementsByTagName('head')[0];
     var moduleName=src.replace(/\.js(\?.*)*$/i,'');
     var loaded=false;
+    var modules={};
     var kill=function(){try{head.removeChild(this);}catch(e){}};
     var load=function(){
       if(isTrue(this,'loaded'))return;
@@ -76,6 +80,11 @@ var define=function(){
       else cb[0] && cb[0].apply(cb[2],toExports(result[1]));
     }
   }
+
+  var toExports=function(modules){
+    for(var i=0;i<modules.length;i++)modules[i]=modules[i].exports;
+    return modules;
+  };
   var _define=function(){
     var a=arguments;
     var id,dependencies=[],factory,node=this,tested=node.tested||a[3];
@@ -95,11 +104,7 @@ var define=function(){
       return;
     }
     var _module=module[id]={exports:{}};
-    var toExports=function(modules){
-      for(var i=0;i<modules.length;i++)modules[i]=modules[i].exports;
-      return modules;
-    };
-    var require=function(moduleName,callback){
+    var _require=function(moduleName,callback){
       var one=is(moduleName,String);
       if(one)moduleName=[moduleName];
       var t=test(moduleName,node.path);
@@ -107,20 +112,24 @@ var define=function(){
       if(!callback)return one?(t[1]?t[1][0]:null):t[1];
       else t[1]?callback.apply(node,t[1]):(callbackwait[uniqueId++]=[callback,t[0],node]);
     };
-    require.toUrl=function(str){
+    _require.toUrl=function(str){
       return format(str,node.path);
     };
     if(is(factory,Object))module[id]=factory;
-    else factory(require,_module.exports,module[id]);
+    else factory(_require,_module.exports,module[id]);
     cleanWait(callbackwait);
     cleanWait(wait);
   };
-  var define=function(){
+  define=function(){
     var a=arguments;
     if(defineQueue===undefined)defineQueue=[];
     defineQueue.push(a);
   };
   define.amd=true;
-  define.use=function(src){loadScript(src)};
-  return define;
+  require=function(){
+    var a=arguments;
+    _define.apply({},[function(require){
+      require.apply(this,a);
+    }]);
+  };
 }();

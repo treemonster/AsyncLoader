@@ -2,7 +2,7 @@ define([
   'requires/s/3/f/modules/normalDefine',
   'requires/s/1/f/modules/simpleDefine',
   'requires/modules/other/toUrl'],
-function(require){
+function(require,exports){
 
   // require.toUrl
   var toUrl=require('requires/modules/other/toUrl');
@@ -21,5 +21,8 @@ function(require){
 
   // require immediately
   require('requires/s/1/f/modules/simpleDefine').test(' immediately ok');
+  exports.test=function(){
+    console.log('main is ok!');
+  };
 
 });

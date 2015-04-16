@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src='../define.js'></script>
+<script src='../amd.js'></script>
 </head>
 <body>
 <div id='log'><h1>Result: </h1></div>
@@ -11,18 +11,8 @@
 };
 </script>
 <script>
-define.use('main.js');
-/*
-Once main.js running completed, following result will displayed on this page
-
-testWait is ready
-modules/testWait is ready
-require.toUrl: requires/modules/other/test.html
-normalDefine: ok
-simpleDefine: ok
-require.toUrl: requires/modules/other/test.html
-simpleDefine: immediately ok
-
-*/
+require(['main'],function(main){
+  main.test();
+});
 </script>
 </body>
