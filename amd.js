@@ -85,14 +85,13 @@ var define,require;
     if(!isOldIE)return _loadScript;
     var load_sync=[];
     setInterval(function(){
-    if(!load_sync.length)return;
-    var js=load_sync[0];
-    if(js.constructor===String){
-      js=_loadScript(load_sync.shift());
-      if(js)load_sync.unshift(js);
-    }
-    else if(js.done)load_sync.shift();
-  },10);
+      if(!load_sync.length)return;
+      var js=load_sync[0];
+      if(js.constructor===String){
+        js=_loadScript(load_sync.shift());
+        if(js)load_sync.unshift(js);
+      }else if(js.done)load_sync.shift();
+    },10);
     return function(src){
       load_sync.push(src);
     };
