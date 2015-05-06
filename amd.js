@@ -1,6 +1,6 @@
 /*!
  * amd.js
- * Version: 1.1.3
+ * Version: 1.2
  *
  * Copyright 2015 treemonster
  * Released under the Apache license
@@ -90,7 +90,7 @@ var define,require;
     var js=load_sync[0];
     if(js.constructor===String){
       js=_loadScript(load_sync.shift());
-      if(js)load_test.unshift(js);
+      if(js)load_sync.unshift(js);
     }
     else if(js.done)load_sync.shift();
   },10);
