@@ -11,8 +11,7 @@ var define,require;
 // GLOBAL require should just use in html page
 
 !function(){
-  //var 
-  scriptLoaded={},wait={},uniqueId=0,callbackwait={},module={},defineQueue=undefined,requireQueue=undefined;
+  var scriptLoaded={},wait={},uniqueId=0,callbackwait={},module={},defineQueue=undefined,requireQueue=undefined;
   function isTrue(a,b){
     if(a[b]===true)return true;else a[b]=true;
   }
