@@ -1,6 +1,6 @@
 /*!
  * amd.js
- * Version: 1.1.1
+ * Version: 1.1.2
  *
  * Copyright 2015 treemonster
  * Released under the Apache license
@@ -26,16 +26,18 @@ var define,require;
       else re.push(req[i]);
     return re.join('/');
   }
-  function loadScript(src){
-    if(isTrue(scriptLoaded,src))return;
+  function _loadScript(src,callback){
+    if(isTrue(scriptLoaded,src))return callback();
     var script=document.createElement('script');
     var head=document.getElementsByTagName('head')[0];
     var moduleName=src.replace(/\.js(\?.*)*$/i,'');
     var loaded=false;
     var modules={};
+    var firstRun=true;
     var kill=function(){try{head.removeChild(this);}catch(e){}};
     var load=function(){
-      if(isTrue(this,'loaded'))return;
+      if(isTrue(this,'loaded') || !firstRun)return;
+      firstRun=true;
       if(defineQueue)for(var i=0;i<defineQueue.length;i++)
         _define.apply({
           moduleName: moduleName, // a/b/c.js -> a/b/c
@@ -43,14 +45,11 @@ var define,require;
         },defineQueue[i]);
       defineQueue=undefined;
       kill.call(this);
+      callback();
     };
     script.onerror=kill;
-    if(script.onreadystatechange===null)
-      script.onreadystatechange=function(){
-        /loaded|complete/.test(this.readyState) && load.call(this);
-      };
-    else if(script.onload===null)script.onload=load;
-    else throw 'Unknown Error';
+    script.onreadystatechange=function(){/loaded|complete/.test(this.readyState) && load.call(this);};
+    script.onload=load;
     script.type='text/javascript';
     script.async="async";
     script.defer="defer";
@@ -63,7 +62,7 @@ var define,require;
       if(refer!==undefined)requires[i]=format(requires[i],refer);
       if(module[requires[i]])ready!==null && ready.push(module[requires[i]]);
       else{
-        loadScript(requires[i]);
+        loadScript(requires[i],function(){});
         ready=null;
       }
     }
@@ -80,7 +79,23 @@ var define,require;
       else cb[0] && cb[0].apply(cb[2],toExports(result[1]));
     }
   }
-
+  var loadScript=(function(handler,shouldLock){
+    var list=[],busy=false;
+    return function(){
+      var a=arguments;
+      var callback=a[a.length-1];
+      a[a.length-1]=function(){
+        busy=false;
+        callback.apply(this,arguments);
+        if(list.length)handler.apply(this,list.shift());
+      };
+      list.push(a);
+      if(!shouldLock || !busy){
+        busy=true;
+        handler.apply(this,list.shift());
+      }
+    };
+  })(_loadScript,document.createElement('script').onreadystatechange===null);
   var toExports=function(modules){
     for(var i=0;i<modules.length;i++)modules[i]=modules[i].exports;
     return modules;
