@@ -1,6 +1,6 @@
 /*!
  * amd.js
- * Version: 1.1.2
+ * Version: 1.1.3
  *
  * Copyright 2015 treemonster
  * Released under the Apache license
@@ -11,7 +11,8 @@ var define,require;
 // GLOBAL require should just use in html page
 
 !function(){
-  var scriptLoaded={},wait={},uniqueId=0,callbackwait={},module={},defineQueue=undefined,requireQueue=undefined;
+  //var 
+  scriptLoaded={},wait={},uniqueId=0,callbackwait={},module={},defineQueue=undefined,requireQueue=undefined;
   function isTrue(a,b){
     if(a[b]===true)return true;else a[b]=true;
   }
@@ -26,8 +27,8 @@ var define,require;
       else re.push(req[i]);
     return re.join('/');
   }
-  function _loadScript(src,callback){
-    if(isTrue(scriptLoaded,src))return callback();
+  function _loadScript(src){
+    if(isTrue(scriptLoaded,src))return;
     var script=document.createElement('script');
     var head=document.getElementsByTagName('head')[0];
     var moduleName=src.replace(/\.js(\?.*)*$/i,'');
@@ -36,6 +37,7 @@ var define,require;
     var firstRun=true;
     var kill=function(){try{head.removeChild(this);}catch(e){}};
     var load=function(){
+      this.done=true;
       if(isTrue(this,'loaded') || !firstRun)return;
       firstRun=true;
       if(defineQueue)for(var i=0;i<defineQueue.length;i++)
@@ -45,7 +47,6 @@ var define,require;
         },defineQueue[i]);
       defineQueue=undefined;
       kill.call(this);
-      callback();
     };
     script.onerror=kill;
     script.onreadystatechange=function(){/loaded|complete/.test(this.readyState) && load.call(this);};
@@ -55,6 +56,7 @@ var define,require;
     script.defer="defer";
     script.src=moduleName+'.js';
     if(head)head.insertBefore(script,head.firstChild);
+    return script;
   }
   function test(requires,refer){
     var ready=[];
@@ -62,7 +64,7 @@ var define,require;
       if(refer!==undefined)requires[i]=format(requires[i],refer);
       if(module[requires[i]])ready!==null && ready.push(module[requires[i]]);
       else{
-        loadScript(requires[i],function(){});
+        loadScript(requires[i]);
         ready=null;
       }
     }
@@ -79,23 +81,24 @@ var define,require;
       else cb[0] && cb[0].apply(cb[2],toExports(result[1]));
     }
   }
-  var loadScript=(function(handler,shouldLock){
-    var list=[],busy=false;
-    return function(){
-      var a=arguments;
-      var callback=a[a.length-1];
-      a[a.length-1]=function(){
-        busy=false;
-        callback.apply(this,arguments);
-        if(list.length)handler.apply(this,list.shift());
-      };
-      list.push(a);
-      if(!shouldLock || !busy){
-        busy=true;
-        handler.apply(this,list.shift());
-      }
+
+  var loadScript=(function(isOldIE){
+    if(!isOldIE)return _loadScript;
+    var load_sync=[];
+    setInterval(function(){
+    if(!load_sync.length)return;
+    var js=load_sync[0];
+    if(js.constructor===String){
+      js=_loadScript(load_sync.shift());
+      if(js)load_test.unshift(js);
+    }
+    else if(js.done)load_sync.shift();
+  },10);
+    return function(src){
+      load_sync.push(src);
     };
-  })(_loadScript,document.createElement('script').onreadystatechange===null);
+  })(document.createElement('script').onreadystatechange===null);
+
   var toExports=function(modules){
     for(var i=0;i<modules.length;i++)modules[i]=modules[i].exports;
     return modules;
