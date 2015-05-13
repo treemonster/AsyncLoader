@@ -1,6 +1,6 @@
 /*!
  * amd.js
- * Version: 1.2
+ * Version: 1.2.2
  *
  * Copyright 2015 treemonster
  * Released under the Apache license
@@ -53,7 +53,7 @@ var define,require;
     script.type='text/javascript';
     script.async="async";
     script.defer="defer";
-    script.src=moduleName+'.js';
+    script.src=moduleName+'.js'+(define.cache?('?'+(new Date()*1)):'');
     if(head)head.insertBefore(script,head.firstChild);
     return script;
   }
@@ -141,7 +141,9 @@ var define,require;
     if(defineQueue===undefined)defineQueue=[];
     defineQueue.push(a);
   };
-  define.amd=true;
+  define.amd={
+    cache:true // if set false, loadScript function will auto add random number version to the src
+  };
   require=function(){
     var a=arguments;
     _define.apply({},[function(require){
